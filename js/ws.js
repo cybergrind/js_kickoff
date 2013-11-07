@@ -15,10 +15,10 @@ function WsHandler(router) {
     self.init = function (){
         console.log('Open connection')
         self.socket = new WebSocket(self.ws_uri)
+        self.socket.onclose = self.connection_close
+
         self.socket.onopen = function (){
             self.socket.onmessage = self.on_message
-            self.socket.onclose = self.connection_close
-            self.socket.onerror = self.connection_close
             self.send = self.ws_send
             // send stored messages
             _.each(self.msgs, function(m){self.send(m)})
@@ -31,7 +31,7 @@ function WsHandler(router) {
     }
 
     self.connection_close = function(){
-        console.log("Connection closed")
+        console.log("Connection closed. Go reconnect")
         router.route({
             rk: 'ws_closed',
             status: 'ws_closed'
