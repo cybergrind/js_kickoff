@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Hello</title>
     <link href='/css/bootstrap.css' rel='stylesheet'>
-    <link href='/css/bootstrap-responsive.css' rel='stylesheet'>
+    <link href='/css/bootstrap-theme.css' rel='stylesheet'>
     <script src='/ext_js/jquery.js'></script>
     <script src='/ext_js/underscore.js'></script>
     <style>
@@ -16,23 +16,31 @@
   </head>
 
   <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-top" role='navigation'>
+      <div class='container'>
+
       <div class="navbar-inner">
         <div class="container">
-          <a class="brand" href="#">Router page</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
+          <div class='navbar-header'>
+          <a class="navbar-brand" href="#">Router page</a>
+          </div>
+          <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
               <li><a id='alert1' href="#">Alert 1</a></li>
               <li><a id='alert2' href="#">Alert 2</a></li>
+            </ul>
           </div>
         </div>
       </div>
+      </div>
     </div>
+
+
     <div class='container'>
       <h1> This is me </h1>
       <div class='row'>
-        <div id='alert1_click' class='span5 invisible alert'>Alert 1 !!!</div>
-        <div id='alert2_click' class='span5 invisible alert alert-error'>Alert 2 !!!</div>
+        <div id='alert1_click' class='col-md-6 invisible alert alert-info'>Alert 1 !!!</div>
+        <div id='alert2_click' class='col-md-6 invisible alert alert-success'>Alert 2 !!!</div>
       </div>
     </div>
   </body>
