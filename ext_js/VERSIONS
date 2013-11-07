@@ -1,0 +1,4 @@
+require.js==2.1.9
+underscore.js==1.5.2
+jquery.js==2.0.3
+bootstrap==2.3.2
