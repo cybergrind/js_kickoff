@@ -1,0 +1,105 @@
+(function(){
+
+function Table(name, columns, data){
+    var self = this
+    self.name = name
+    self.data = data
+    self.columns = columns
+    self.table_width = 'col-md-12'
+    self.load_count = 0
+    self.target_count = 0
+    self.loaded = $.Deferred()
+
+    self.rows = []
+    self.load_template = function (t_name, bind_name){
+        self[bind_name] = $.Deferred()
+        self.target_count += 1
+        require(['text!../templates/'+t_name],
+                function (t){
+                    self[bind_name] = _.template(t)
+                    self.load_count += 1
+                    if (self.load_count == self.target_count){
+                        self.loaded.resolve()}
+                })
+    }
+    self.load_template('table.html', 't_tmpl')
+    self.load_template('table_header.html', 'h_tmpl')
+    self.load_template('table_body.html', 'b_tmpl')
+
+    self.init = function (){
+        self.rows = _.map(data, function (row){ return new Row(self, self.columns, row) })
+    }
+    self.draw = function (div){
+        self.table_header = self.h_tmpl(self)
+        self.table_body =  self.b_tmpl(self)
+        self.table = self.t_tmpl(self)
+        div.html(self.table)
+        div.click(self.on_click)
+    }
+    
+    self.on_click = function (evt){
+        rowIndex = evt.target.parentNode.rowIndex - 1
+        console.log('On table click. RowIndex '+rowIndex)
+        if (rowIndex < 0){ return false }
+        cell_idx = evt.target.cellIndex
+        self.rows[rowIndex].bind_delete(cell_idx)
+    }
+
+    self.draw_cell_menu = function (evt, row){
+        
+    }
+
+    self.get_cell_text = function (cell) {
+        return cell
+    }
+
+    self.sort = function (row){
+        return row.get_sort()
+    }
+    self.init()
+    return self
+}
+
+function Row(table, columns, row_data){
+    var self = this
+    self.columns = columns
+    self.data = row_data
+    self.attrs = ''
+    self.attrs_cell = ''
+
+    self.cell_getter = function (column, cell){
+        if (_.contains(['int', 'str'], column.type)) {
+            return cell
+        } else if (column.type == 'reference') {
+            return column.ref_table.get_cell_text(cell)
+        } else {
+            return cell
+        }
+    }
+    self.get_cells = function (){
+        return _.map(_.zip(self.columns, self.data),
+                     function (d){ return self.cell_getter(d[0], d[1])})
+    }
+    self.get_sort = function (){
+        return self.data[0]
+    }
+    
+    self.bind_edit = function (){
+    }
+    self.bind_delete = function (cell_idx){
+        console.log('DELETE ROW')
+        console.log(JSON.stringify(self.data))
+        console.log('Exact cell content: '+self.data[cell_idx])
+        console.log('------------------------------')
+    }
+    
+    return self
+}
+
+
+define(['tables'],
+       function (){
+           return {'Table': Table,
+                   'Row': Row}
+       })
+})()

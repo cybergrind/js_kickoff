@@ -1,0 +1,8 @@
+<!-- Draw body -->
+<% _.each(rows, function (row) { %>
+<tr <%= row.attrs %>>
+  <% _.each(row.get_cells(), function (cell) { %>
+  <td <% row.attrs_cell %>><%= cell %></td>
+  <% }) %>
+</tr>
+<% }) %>
