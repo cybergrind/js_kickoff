@@ -25,6 +25,7 @@ function Table(name, columns, data){
     self.load_template('table.html', 't_tmpl')
     self.load_template('table_header.html', 'h_tmpl')
     self.load_template('table_body.html', 'b_tmpl')
+    self.load_template('table_edit_bar.html', 'e_tmpl')
 
     self.init = function (){
         self.rows = _.map(data, function (row){ return new Row(self, self.columns, row) })
@@ -36,17 +37,45 @@ function Table(name, columns, data){
         div.html(self.table)
         div.click(self.on_click)
     }
-    
+
     self.on_click = function (evt){
         rowIndex = evt.target.parentNode.rowIndex - 1
         console.log('On table click. RowIndex '+rowIndex)
         if (rowIndex < 0){ return false }
         cell_idx = evt.target.cellIndex
-        self.rows[rowIndex].bind_delete(cell_idx)
+        console.log(evt)
+        var t_row = $(evt.target.parentNode)
+        if (self.e_bar) {
+            self.e_bar.remove()
+            self.e_bar = null
+        }
+        self.e_bar = $(self.e_tmpl(self))
+        var edit = function (e){
+            console.log('click edit')
+        }
+        var remove = function (e){
+            console.log('click remove')
+        }
+        var ok = function (e){
+            console.log('click ok')
+            self.e_bar.remove()
+        }
+
+        $('#bar-edit', self.e_bar).click(edit)
+        $('#bar-remove', self.e_bar).click(remove)
+        $('#bar-ok', self.e_bar).click(ok)
+        self.e_bar.css({position: 'fixed',
+                        top: evt.pageY-5,
+                        left: evt.pageX+10,
+                        'z-index': 2147483647,
+                        'font-size': '18px'
+                       })
+        $('body').append(self.e_bar)
+
     }
 
     self.draw_cell_menu = function (evt, row){
-        
+
     }
 
     self.get_cell_text = function (cell) {
@@ -83,8 +112,12 @@ function Row(table, columns, row_data){
     self.get_sort = function (){
         return self.data[0]
     }
-    
-    self.bind_edit = function (){
+
+    self.bind_edit = function (cell_idx){
+        console.log('EDIT ROW')
+        console.log(JSON.stringify(self.data))
+        console.log('Exact cell content: '+self.data[cell_idx])
+        console.log('------------------------------')
     }
     self.bind_delete = function (cell_idx){
         console.log('DELETE ROW')
@@ -92,7 +125,7 @@ function Row(table, columns, row_data){
         console.log('Exact cell content: '+self.data[cell_idx])
         console.log('------------------------------')
     }
-    
+
     return self
 }
 
