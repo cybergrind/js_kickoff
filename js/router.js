@@ -32,6 +32,10 @@ function Router() {
         self.route_table[rk] = _.without(self.route_table[rk],
                                          handler_function)
     }
+
+    self.push = function (msg){
+        self.route({rk: 'push', msg: msg})
+    }
     
 }
 

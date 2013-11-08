@@ -56,7 +56,11 @@ function WsHandler(router) {
         self.msgs.push(txt)
     }
     // this default send function
+    self.push = function (msg){
+        self.send(msg.msg)
+    }
     self.send = self.store_messages
+    self.router.subscribe('push', self.push)
     self.init();
 }
 
