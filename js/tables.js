@@ -38,20 +38,33 @@ function Table(name, columns, data){
         div.click(self.on_click)
     }
 
+    self.e_bar_clean = function (what){
+        console.log('Call clear with '+what)
+        if (! self.e_bar){ return }
+        if (what && self.e_bar.uniq != what){
+            return
+        }
+        if (what){
+            $(self.e_bar).fadeOut()
+            self.e_bar.promise().done(function (){
+                if (self.e_bar){
+                    self.e_bar.remove()
+                    self.e_bar = null }})
+        } else {
+            self.e_bar.remove()
+            self.e_bar = null
+        }
+    }
+
     self.on_click = function (evt){
         row_idx = evt.target.parentNode.rowIndex - 1
         console.log('On table click. RowIndex '+row_idx)
         if (row_idx < 0){ return false }
-        cell_idx = evt.target.cellIndex
+        cell_idx = evt.target.cellIndexn
         console.log(evt)
         var t_row = $(evt.target.parentNode)
-        var e_bar_clean = function (){
-            self.e_bar_remove
-            self.e_bar = null
-        }
-        if (self.e_bar) {
-            self.e_bar_clean()
-        }
+
+        self.e_bar_clean()
         self.e_bar = $(self.e_tmpl(self))
         var edit = function (e){
             console.log('click edit')
@@ -60,7 +73,7 @@ function Table(name, columns, data){
         }
         var remove = function (e){
             console.log('click remove')
-            self.rows[row_idx].on_remove(cell_idx)
+            self.rows[row_idx].on_delete(cell_idx)
             self.e_bar_clean()
         }
         var ok = function (e){
@@ -77,8 +90,10 @@ function Table(name, columns, data){
                         'z-index': 2147483647,
                         'font-size': '18px'
                        })
+        e_uniq = Math.random()
+        self.e_bar.uniq  = e_uniq
+        setTimeout(function (){ self.e_bar_clean(e_uniq) }, 3000)
         $('body').append(self.e_bar)
-
     }
 
     self.draw_cell_menu = function (evt, row){
