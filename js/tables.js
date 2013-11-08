@@ -39,26 +39,33 @@ function Table(name, columns, data){
     }
 
     self.on_click = function (evt){
-        rowIndex = evt.target.parentNode.rowIndex - 1
-        console.log('On table click. RowIndex '+rowIndex)
-        if (rowIndex < 0){ return false }
+        row_idx = evt.target.parentNode.rowIndex - 1
+        console.log('On table click. RowIndex '+row_idx)
+        if (row_idx < 0){ return false }
         cell_idx = evt.target.cellIndex
         console.log(evt)
         var t_row = $(evt.target.parentNode)
-        if (self.e_bar) {
-            self.e_bar.remove()
+        var e_bar_clean = function (){
+            self.e_bar_remove
             self.e_bar = null
+        }
+        if (self.e_bar) {
+            self.e_bar_clean()
         }
         self.e_bar = $(self.e_tmpl(self))
         var edit = function (e){
             console.log('click edit')
+            self.rows[row_idx].on_edit(cell_idx)
+            self.e_bar_clean()
         }
         var remove = function (e){
             console.log('click remove')
+            self.rows[row_idx].on_remove(cell_idx)
+            self.e_bar_clean()
         }
         var ok = function (e){
             console.log('click ok')
-            self.e_bar.remove()
+            self.e_bar_clean()
         }
 
         $('#bar-edit', self.e_bar).click(edit)
@@ -113,13 +120,13 @@ function Row(table, columns, row_data){
         return self.data[0]
     }
 
-    self.bind_edit = function (cell_idx){
+    self.on_edit = function (cell_idx){
         console.log('EDIT ROW')
         console.log(JSON.stringify(self.data))
         console.log('Exact cell content: '+self.data[cell_idx])
         console.log('------------------------------')
     }
-    self.bind_delete = function (cell_idx){
+    self.on_delete = function (cell_idx){
         console.log('DELETE ROW')
         console.log(JSON.stringify(self.data))
         console.log('Exact cell content: '+self.data[cell_idx])
