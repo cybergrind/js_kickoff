@@ -1,5 +1,14 @@
 (function(){
 
+function Columns(columns){
+    var self = this
+    self.columns = columns
+
+    self.names = _.map(self.columns,
+                        function (x) { return x.name })
+    return self
+}
+
 function Table(name, columns, data){
     var self = this
     self.name = name
@@ -12,25 +21,29 @@ function Table(name, columns, data){
 
     self.rows = []
     self.load_template = function (t_name, bind_name){
-        self[bind_name] = $.Deferred()
-        self.target_count += 1
         require(['text!../templates/'+t_name],
                 function (t){
                     self[bind_name] = _.template(t)
                     self.load_count += 1
+                    console.log('LOAD COUNT: '+self.load_count)
                     if (self.load_count == self.target_count){
                         self.loaded.resolve()}
                 })
     }
+    self.target_count = 4
     self.load_template('table.html', 't_tmpl')
     self.load_template('table_header.html', 'h_tmpl')
     self.load_template('table_body.html', 'b_tmpl')
     self.load_template('table_edit_bar.html', 'e_tmpl')
 
+
     self.init = function (){
         self.rows = _.map(data, function (row){ return new Row(self, self.columns, row) })
     }
     self.draw = function (div){
+        console.log('H_TMPL')
+        console.log(self.loaded.state())
+        console.log(self.h_tmpl)
         self.table_header = self.h_tmpl(self)
         self.table_body =  self.b_tmpl(self)
         self.table = self.t_tmpl(self)
@@ -104,6 +117,14 @@ function Table(name, columns, data){
         return cell
     }
 
+    self.get_ref_text = function (cell) {
+        var f_rows = _.filter(self.data, function (x) { return x[0] == cell })
+        if (f_rows.length > 0){
+            return f_rows[0][1]
+        } else {
+            return 'ERROR: Cannot get '+cell }
+    }
+
     self.sort = function (row){
         return row.get_sort()
     }
@@ -119,16 +140,18 @@ function Row(table, columns, row_data){
     self.attrs_cell = ''
 
     self.cell_getter = function (column, cell){
-        if (_.contains(['int', 'str'], column.type)) {
+        if (!column){
+            return 'Unknown column'
+        } else if (_.contains(['int', 'str'], column.type)) {
             return cell
         } else if (column.type == 'reference') {
-            return column.ref_table.get_cell_text(cell)
+            return column.ref_table.get_ref_text(cell)
         } else {
             return cell
         }
     }
     self.get_cells = function (){
-        return _.map(_.zip(self.columns, self.data),
+        return _.map(_.zip(self.columns.columns, self.data),
                      function (d){ return self.cell_getter(d[0], d[1])})
     }
     self.get_sort = function (){
@@ -155,6 +178,8 @@ function Row(table, columns, row_data){
 define(['tables'],
        function (){
            return {'Table': Table,
-                   'Row': Row}
+                   'Row': Row,
+                   'Columns': Columns
+                  }
        })
 })()
