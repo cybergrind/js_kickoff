@@ -19,6 +19,7 @@ function Table(name, columns, data){
     self.target_count = 0
     self.loaded = $.Deferred()
     self.div = null
+    self.can_be_null = false
 
     self.rows = []
     self.load_template = function (t_name, bind_name){
@@ -51,7 +52,8 @@ function Table(name, columns, data){
         self.table_header = self.h_tmpl(self)
         self.table_body =  self.b_tmpl(self)
         self.table = self.t_tmpl(self)
-        div.append('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span><span class="row-add glyphicon glyphicon-plus" /></div>')
+        div.empty()
+        div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span><span class="row-add glyphicon glyphicon-plus" /></div>')
         div.append(self.table)
         $('table', div).click(self.on_click)
         $('.row-add', div).click(self.on_add_row)
@@ -81,8 +83,27 @@ function Table(name, columns, data){
         $('#modal-add').remove()
         var modal_add = self.add_tmpl(new Row(self, self.columns, []))
         self.div.append(modal_add)
+        $('button.btn-add', self.div).click(function (e){
+            console.log('Button click')
+            var arr = $('#add-form').serializeArray()
+            var dct = {}
+            _.each(arr, function (arr_row){
+                dct[arr_row.name] = arr_row.value
+            })
+            console.log('ADD ARRAY')
+            console.log(dct)
+            self.add_callback(self.name, dct)
+            $('#modal-add', self.div).modal('hide')
+            //$('#modal-add', self.div).remove()
+            $('.modal-backdrop').remove()
+        })
         $('#modal-add').modal()
+
     }
+
+    self.add_callback = function (table, row){}
+    self.del_callback = function (table, row){}
+    self.save_callback = function (table, row){}
 
     self.on_click = function (evt){
         row_idx = evt.target.parentNode.rowIndex - 1
@@ -103,6 +124,19 @@ function Table(name, columns, data){
             self.e_bar_clean()
             var modal_edit = self.edit_tmpl(edit_row)
             self.div.append(modal_edit)
+            $('button.btn-save', self.div).click(function (e){
+                console.log('Button click')
+                var arr = $('#edit-form').serializeArray()
+                var dct = {}
+                _.each(arr, function (arr_row){
+                    dct[arr_row.name] = arr_row.value
+                })
+                console.log('ADD ARRAY')
+                console.log(dct)
+                self.save_callback(self.name, dct)
+                $('#modal-edit', self.div).modal('hide')
+                $('.modal-backdrop').remove()
+            })
             $('#modal-edit').modal()
         }
         var remove = function (e){
@@ -112,6 +146,11 @@ function Table(name, columns, data){
             self.e_bar_clean()
             var modal_del = self.del_tmpl(del_row)
             self.div.append(modal_del)
+            $('button.btn-del', self.div).click(function (e){
+                console.log('Click del button')
+                $('#modal-delete', self.div).modal('hide')
+                $('.modal-backdrop').remove()
+                self.del_callback(self.name, self.rows[row_idx].get_row_dict())}),
             $('#modal-delete').modal()
         }
         var ok = function (e){
@@ -142,17 +181,26 @@ function Table(name, columns, data){
         return cell
     }
 
+    self.row_as_string = function (row){
+        return row[1]
+    }
     self.get_ref_text = function (cell) {
         var f_rows = _.filter(self.data, function (x) { return x[0] == cell })
         if (f_rows.length > 0){
-            return f_rows[0][1]
+            return self.row_as_string(f_rows[0])
+        } else if (self.can_be_null) {
+            return 'NULL'
         } else {
             return 'ERROR: Cannot get '+cell }
     }
 
     self.get_ref_edit = function (){
-        return _.map(self.data, function(row){ return {value: row[0],
-                                                       text: row[1]}})
+        var defaults = []
+        if (self.can_be_null){ defaults.push({value: null, text: 'NULL'})}
+
+        var curr = _.map(self.data, function(row){ return {value: row[0],
+                                                           text: self.row_as_string(row)}})
+        return _.union(defaults, curr)
     }
 
     self.sort = function (row){
@@ -169,6 +217,13 @@ function Row(table, columns, row_data){
     self.attrs = ''
     self.attrs_cell = ''
 
+
+    self.get_row_dict = function (){
+        var ret = {}
+        _.each(_.zip(self.columns.columns, self.data),
+               function (d){ ret[d[0].name] = d[1] })
+        return ret
+    }
     self.cell_getter = function (column, cell){
         if (!column){
             return 'Unknown column'
@@ -194,7 +249,8 @@ function Row(table, columns, row_data){
     }
     self.get_edit_element = function (column, data){
         if (!data && column.primary) { return $('')}
-        //if (!data){ data = '' }
+        if (column.primary)
+        { return $('<p/>').html('<input type="hidden" name="'+column.name+'" value="'+data+'"/>')}
         var ret = $('<div/>')
         var fg = $('<div/>', {class: 'form-inline'})
 
@@ -207,12 +263,13 @@ function Row(table, columns, row_data){
         var input_div = $('<div/>', {class: 'col-sm-4'})
         if (_.contains(['int', 'str'], column.type)){
             var input = $('<input/>', {id: row_edit_id, class: 'form-control',
-                                       value: data})
+                                       value: data, name: column.name})
         } else if (column.type == 'reference'){
             var refs = column.par[column.ref].get_ref_edit()
-            var input = $('<select/>', {class: 'form-control'})
+            var input = $('<select/>', {class: 'form-control', name: column.name})
             _.each(refs, function (ref){
-                var option = $('<option/>', {'value': ref.value, text: ref.text})
+                var option = $('<option/>', {'value': ref.value, text: ref.text,
+                                             selected: data == ref.value})
                 input.append(option)})
         }
         input_div.append(input)

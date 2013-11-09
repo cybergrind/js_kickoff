@@ -8,7 +8,7 @@
       <div class="modal-body">
         <div class="modal-body">
         <p>Add row</p>
-        <form role='form' class='form-horizontal'>
+        <form role='form' class='form-horizontal' id='add-form'>
           <% _.each(get_row_add(), function (row){ %>
           <%= row.html() %>
           <% }) %>
@@ -18,7 +18,7 @@
       <div class='row'/>
       <div class="modal-footer">
         <button type="button" class="save-btn btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Add row</button>
+        <button type="button" class="btn-add btn btn-primary">Add row</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
