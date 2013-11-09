@@ -53,7 +53,7 @@ function Table(name, columns, data){
         self.table_body =  self.b_tmpl(self)
         self.table = self.t_tmpl(self)
         div.empty()
-        div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span><span class="row-add glyphicon glyphicon-plus" /></div>')
+        div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span><span class="row-add glyphicon glyphicon-plus" style="cursor: pointer;"/></div>')
         div.append(self.table)
         $('table', div).click(self.on_click)
         $('.row-add', div).click(self.on_add_row)
