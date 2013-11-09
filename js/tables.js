@@ -150,6 +150,11 @@ function Table(name, columns, data){
             return 'ERROR: Cannot get '+cell }
     }
 
+    self.get_ref_edit = function (){
+        return _.map(self.data, function(row){ return {value: row[0],
+                                                       text: row[1]}})
+    }
+
     self.sort = function (row){
         return row.get_sort()
     }
@@ -183,9 +188,13 @@ function Row(table, columns, row_data){
         return _.map(self.columns.columns,
                      function (column) { return self.get_edit_element(column, null)})
     }
+    self.get_row_edit = function (){
+        return _.map(_.zip(self.columns.columns, self.data),
+                     function (d) { return self.get_edit_element(d[0], d[1])})
+    }
     self.get_edit_element = function (column, data){
         if (!data && column.primary) { return $('')}
-        if (!data){ data = 'new' }
+        //if (!data){ data = '' }
         var ret = $('<div/>')
         var fg = $('<div/>', {class: 'form-inline'})
 
@@ -194,9 +203,18 @@ function Row(table, columns, row_data){
         var label = $('<label/>', {for: row_edit_id, class: 'col-sm-2 control-label'})
         label.text(column.name)
 
+
         var input_div = $('<div/>', {class: 'col-sm-4'})
-        var input = $('<input/>', {id: row_edit_id, class: 'form-control'})
-        input.val(data)
+        if (_.contains(['int', 'str'], column.type)){
+            var input = $('<input/>', {id: row_edit_id, class: 'form-control',
+                                       value: data})
+        } else if (column.type == 'reference'){
+            var refs = column.par[column.ref].get_ref_edit()
+            var input = $('<select/>', {class: 'form-control'})
+            _.each(refs, function (ref){
+                var option = $('<option/>', {'value': ref.value, text: ref.text})
+                input.append(option)})
+        }
         input_div.append(input)
 
         fg.append(label)
