@@ -47,7 +47,8 @@ function Table(name, columns, data){
         self.table_header = self.h_tmpl(self)
         self.table_body =  self.b_tmpl(self)
         self.table = self.t_tmpl(self)
-        div.html(self.table)
+        div.append('<div class="row"><h4>'+self.name+'</h4></div>')
+        div.append(self.table)
         div.click(self.on_click)
     }
 
@@ -103,7 +104,7 @@ function Table(name, columns, data){
                         'z-index': 2147483647,
                         'font-size': '18px'
                        })
-        e_uniq = Math.random()
+        var e_uniq = Math.random()
         self.e_bar.uniq  = e_uniq
         setTimeout(function (){ self.e_bar_clean(e_uniq) }, 3000)
         $('body').append(self.e_bar)
