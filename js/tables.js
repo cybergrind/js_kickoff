@@ -18,6 +18,7 @@ function Table(name, columns, data){
     self.load_count = 0
     self.target_count = 0
     self.loaded = $.Deferred()
+    self.div = null
 
     self.rows = []
     self.load_template = function (t_name, bind_name){
@@ -30,11 +31,14 @@ function Table(name, columns, data){
                         self.loaded.resolve()}
                 })
     }
-    self.target_count = 4
+    self.target_count = 7
     self.load_template('table.html', 't_tmpl')
     self.load_template('table_header.html', 'h_tmpl')
     self.load_template('table_body.html', 'b_tmpl')
     self.load_template('table_edit_bar.html', 'e_tmpl')
+    self.load_template('row_edit.html', 'edit_tmpl')
+    self.load_template('row_delete.html', 'del_tmpl')
+    self.load_template('row_add.html', 'add_tmpl')
 
 
     self.init = function (){
@@ -47,9 +51,11 @@ function Table(name, columns, data){
         self.table_header = self.h_tmpl(self)
         self.table_body =  self.b_tmpl(self)
         self.table = self.t_tmpl(self)
-        div.append('<div class="row"><h4>'+self.name+'</h4></div>')
+        div.append('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span><span class="row-add glyphicon glyphicon-plus" /></div>')
         div.append(self.table)
-        div.click(self.on_click)
+        $('table', div).click(self.on_click)
+        $('.row-add', div).click(self.on_add_row)
+        self.div = div
     }
 
     self.e_bar_clean = function (what){
@@ -70,10 +76,20 @@ function Table(name, columns, data){
         }
     }
 
+    self.on_add_row = function (evt){
+        console.log('click row add')
+        $('#modal-add').remove()
+        var modal_add = self.add_tmpl(new Row(self, self.columns, []))
+        self.div.append(modal_add)
+        $('#modal-add').modal()
+    }
+
     self.on_click = function (evt){
         row_idx = evt.target.parentNode.rowIndex - 1
         console.log('On table click. RowIndex '+row_idx)
-        if (row_idx < 0){ return false }
+        if (row_idx < 0 || row_idx == undefined || isNaN(row_idx)){
+            console.log('Do not draw edit menu')
+            return false }
         cell_idx = evt.target.cellIndexn
         console.log(evt)
         var t_row = $(evt.target.parentNode)
@@ -82,13 +98,21 @@ function Table(name, columns, data){
         self.e_bar = $(self.e_tmpl(self))
         var edit = function (e){
             console.log('click edit')
-            self.rows[row_idx].on_edit(cell_idx)
+            $('#modal-edit').remove()
+            var edit_row = self.rows[row_idx].on_edit(cell_idx)
             self.e_bar_clean()
+            var modal_edit = self.edit_tmpl(edit_row)
+            self.div.append(modal_edit)
+            $('#modal-edit').modal()
         }
         var remove = function (e){
             console.log('click remove')
-            self.rows[row_idx].on_delete(cell_idx)
+            $('#modal-delete').remove()
+            var del_row = self.rows[row_idx].on_delete(cell_idx)
             self.e_bar_clean()
+            var modal_del = self.del_tmpl(del_row)
+            self.div.append(modal_del)
+            $('#modal-delete').modal()
         }
         var ok = function (e){
             console.log('click ok')
@@ -146,7 +170,7 @@ function Row(table, columns, row_data){
         } else if (_.contains(['int', 'str'], column.type)) {
             return cell
         } else if (column.type == 'reference') {
-            return column.ref_table.get_ref_text(cell)
+            return column.par[column.ref].get_ref_text(cell)
         } else {
             return cell
         }
@@ -155,6 +179,32 @@ function Row(table, columns, row_data){
         return _.map(_.zip(self.columns.columns, self.data),
                      function (d){ return self.cell_getter(d[0], d[1])})
     }
+    self.get_row_add = function (){
+        return _.map(self.columns.columns,
+                     function (column) { return self.get_edit_element(column, null)})
+    }
+    self.get_edit_element = function (column, data){
+        if (!data && column.primary) { return $('')}
+        if (!data){ data = 'new' }
+        var ret = $('<div/>')
+        var fg = $('<div/>', {class: 'form-inline'})
+
+        var row_edit_id = 'new_cell_'+table.name+column.name
+
+        var label = $('<label/>', {for: row_edit_id, class: 'col-sm-2 control-label'})
+        label.text(column.name)
+
+        var input_div = $('<div/>', {class: 'col-sm-4'})
+        var input = $('<input/>', {id: row_edit_id, class: 'form-control'})
+        input.val(data)
+        input_div.append(input)
+
+        fg.append(label)
+        fg.append(input_div)
+        ret.append(fg)
+        return ret
+    }
+
     self.get_sort = function (){
         return self.data[0]
     }
@@ -164,12 +214,15 @@ function Row(table, columns, row_data){
         console.log(JSON.stringify(self.data))
         console.log('Exact cell content: '+self.data[cell_idx])
         console.log('------------------------------')
+        return self
     }
     self.on_delete = function (cell_idx){
         console.log('DELETE ROW')
         console.log(JSON.stringify(self.data))
         console.log('Exact cell content: '+self.data[cell_idx])
         console.log('------------------------------')
+        content = self.data
+        return self
     }
 
     return self
