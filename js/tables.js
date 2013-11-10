@@ -46,22 +46,21 @@ function Table(name, columns, data){
         self.rows = _.map(data, function (row){ return new Row(self, self.columns, row) })
     }
     self.draw = function (div){
-        console.log('H_TMPL')
-        console.log(self.loaded.state())
-        console.log(self.h_tmpl)
-        self.table_header = self.h_tmpl(self)
-        self.table_body =  self.b_tmpl(self)
-        self.table = self.t_tmpl(self)
-        div.empty()
-        if (self.add_callback){
-            self.add_row = '<span class="row-add glyphicon glyphicon-plus" style="cursor: pointer;"/>'} else { self.add_row = '' }
-        div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span>'+self.add_row+'</div>')
-        div.append(self.table)
-        $('table', div).click(self.on_click)
-        if (self.add_callback){
-            $('.row-add', div).click(self.on_add_row)
-        }
-        self.div = div
+        self.loaded.done(function (){
+            self.table_header = self.h_tmpl(self)
+            self.table_body =  self.b_tmpl(self)
+            self.table = self.t_tmpl(self)
+            div.empty()
+            if (self.add_callback){
+                self.add_row = '<span class="row-add glyphicon glyphicon-plus" style="cursor: pointer;"/>'} else { self.add_row = '' }
+            div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span>'+self.add_row+'</div>')
+            div.append(self.table)
+            $('table', div).click(self.on_click)
+            if (self.add_callback){
+                $('.row-add', div).click(self.on_add_row)
+            }
+            self.div = div
+        })
     }
 
     self.e_bar_clean = function (what){
