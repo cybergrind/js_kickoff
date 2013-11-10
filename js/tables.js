@@ -52,7 +52,7 @@ function Table(name, columns, data){
             self.table = self.t_tmpl(self)
             div.empty()
             if (self.add_callback){
-                self.add_row = '<span class="row-add glyphicon glyphicon-plus" style="cursor: pointer;"/>'} else { self.add_row = '' }
+                self.add_row = '<span class="row-add glyphicon glyphicon-plus" style="cursor: pointer; font-size: 10px"/>'} else { self.add_row = '' }
             div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span>'+self.add_row+'</div>')
             div.append(self.table)
             $('table', div).click(self.on_click)
