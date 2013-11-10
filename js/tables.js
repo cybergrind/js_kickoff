@@ -53,10 +53,14 @@ function Table(name, columns, data){
         self.table_body =  self.b_tmpl(self)
         self.table = self.t_tmpl(self)
         div.empty()
-        div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span><span class="row-add glyphicon glyphicon-plus" style="cursor: pointer;"/></div>')
+        if (self.add_callback){
+            self.add_row = '<span class="row-add glyphicon glyphicon-plus" style="cursor: pointer;"/>'} else { self.add_row = '' }
+        div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span>'+self.add_row+'</div>')
         div.append(self.table)
         $('table', div).click(self.on_click)
-        $('.row-add', div).click(self.on_add_row)
+        if (self.add_callback){
+            $('.row-add', div).click(self.on_add_row)
+        }
         self.div = div
     }
 
@@ -94,18 +98,21 @@ function Table(name, columns, data){
             console.log(dct)
             self.add_callback(self.name, dct)
             $('#modal-add', self.div).modal('hide')
-            //$('#modal-add', self.div).remove()
             $('.modal-backdrop').remove()
         })
         $('#modal-add').modal()
 
     }
 
-    self.add_callback = function (table, row){}
-    self.del_callback = function (table, row){}
-    self.save_callback = function (table, row){}
+    self.setup_edit = function (add_cb, del_cb, edit_cb) {
+        self.add_callback = add_cb
+        self.del_callback = del_cb
+        self.save_callback = edit_cb
+    }
 
     self.on_click = function (evt){
+        if (!self.add_callback && !self.del_callback && !self.save_callback)
+           { return false }
         row_idx = evt.target.parentNode.rowIndex - 1
         console.log('On table click. RowIndex '+row_idx)
         if (row_idx < 0 || row_idx == undefined || isNaN(row_idx)){
