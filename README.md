@@ -31,4 +31,9 @@ just approach to write js code and some useful parts.
 
 ## Description
 
-TBD
+Current components:
+
+* router.js - pub/sub realization
+* ws.js - websocket worker
+* ws_indicator.js - websocket indication widget
+* tables.js - bunch of table drawing helpers
