@@ -20,6 +20,7 @@ function Table(name, columns, data){
     self.loaded = $.Deferred()
     self.div = null
     self.can_be_null = false
+    self.glyph_block = '<span class="row-add glyphicon glyphicon-plus" style="cursor: pointer; font-size: 10px"/>'
 
     self.rows = []
     self.load_template = function (t_name, bind_name){
@@ -52,14 +53,11 @@ function Table(name, columns, data){
             self.table = self.t_tmpl(self)
             div.empty()
             if (self.add_callback){
-                self.add_row = '<span class="row-add glyphicon glyphicon-plus" style="cursor: pointer; font-size: 10px"/>'} else { self.add_row = '' }
+                self.add_row = self.glyph_block } else { self.add_row = '' }
             div.html('<div class="row"><span">'+self.name+'</span><span>&nbsp;</span>'+self.add_row+'</div>')
             div.append(self.table)
-            $('table', div).click(self.on_click)
-            if (self.add_callback){
-                $('.row-add', div).click(self.on_add_row)
-            }
             self.div = div
+            self.edit_clicks()
         })
     }
 
@@ -79,6 +77,24 @@ function Table(name, columns, data){
             self.e_bar.remove()
             self.e_bar = null
         }
+    }
+
+
+
+    self.edit_clicks = function(){
+        if (self.add_callback || self.del_callback || self.save_callback){
+            $('table', self.div).click(self.on_click)
+            if (self.add_callback){
+                $('.row-add', div).click(self.on_add_row)
+            }
+        }
+    }
+
+    self.setup_edit = function (add_cb, del_cb, edit_cb) {
+        self.add_callback = add_cb
+        self.del_callback = del_cb
+        self.save_callback = edit_cb
+
     }
 
     self.on_add_row = function (evt){
@@ -101,12 +117,6 @@ function Table(name, columns, data){
         })
         $('#modal-add').modal()
 
-    }
-
-    self.setup_edit = function (add_cb, del_cb, edit_cb) {
-        self.add_callback = add_cb
-        self.del_callback = del_cb
-        self.save_callback = edit_cb
     }
 
     self.on_click = function (evt){
@@ -179,10 +189,6 @@ function Table(name, columns, data){
         $('body').append(self.e_bar)
     }
 
-    self.draw_cell_menu = function (evt, row){
-
-    }
-
     self.get_cell_text = function (cell) {
         return cell
     }
@@ -253,10 +259,13 @@ function Row(table, columns, row_data){
         return _.map(_.zip(self.columns.columns, self.data),
                      function (d) { return self.get_edit_element(d[0], d[1])})
     }
+
     self.get_edit_element = function (column, data){
         if (!data && column.primary) { return $('')}
-        if (column.primary)
-        { return $('<p/>').html('<input type="hidden" name="'+column.name+'" value="'+data+'"/>')}
+        if (column.primary) {
+            var hv = '<input type="hidden" name="'+column.name+'" value="'+data+'"/>'
+            return $('<p/>').html(hv)}
+
         var ret = $('<div/>')
         var fg = $('<div/>', {class: 'form-inline'})
 
@@ -291,18 +300,9 @@ function Row(table, columns, row_data){
     }
 
     self.on_edit = function (cell_idx){
-        console.log('EDIT ROW')
-        console.log(JSON.stringify(self.data))
-        console.log('Exact cell content: '+self.data[cell_idx])
-        console.log('------------------------------')
         return self
     }
     self.on_delete = function (cell_idx){
-        console.log('DELETE ROW')
-        console.log(JSON.stringify(self.data))
-        console.log('Exact cell content: '+self.data[cell_idx])
-        console.log('------------------------------')
-        content = self.data
         return self
     }
 
