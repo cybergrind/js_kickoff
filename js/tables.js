@@ -28,7 +28,6 @@ function Table(name, columns, data){
                 function (t){
                     self[bind_name] = _.template(t)
                     self.load_count += 1
-                    console.log('LOAD COUNT: '+self.load_count)
                     if (self.load_count == self.target_count){
                         self.loaded.resolve()}
                 })
@@ -85,7 +84,7 @@ function Table(name, columns, data){
         if (self.add_callback || self.del_callback || self.save_callback){
             $('table', self.div).click(self.on_click)
             if (self.add_callback){
-                $('.row-add', div).click(self.on_add_row)
+                $('.row-add', self.div).click(self.on_add_row)
             }
         }
     }
@@ -94,7 +93,6 @@ function Table(name, columns, data){
         self.add_callback = add_cb
         self.del_callback = del_cb
         self.save_callback = edit_cb
-
     }
 
     self.on_add_row = function (evt){
@@ -121,7 +119,7 @@ function Table(name, columns, data){
 
     self.on_click = function (evt){
         if (!self.add_callback && !self.del_callback && !self.save_callback)
-           { return false }
+        { return false }
         row_idx = evt.target.parentNode.rowIndex - 1
         console.log('On table click. RowIndex '+row_idx)
         if (row_idx < 0 || row_idx == undefined || isNaN(row_idx)){
