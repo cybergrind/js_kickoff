@@ -168,8 +168,8 @@ function Table(name, columns, data){
         $('#bar-remove', self.e_bar).click(remove)
         $('#bar-ok', self.e_bar).click(ok)
         self.e_bar.css({position: 'fixed',
-                        top: evt.pageY-5,
-                        left: evt.pageX+10,
+                        top: evt.clientY,
+                        left: evt.clientX,
                         'z-index': 2147483647,
                         'font-size': '18px'
                        })
@@ -222,6 +222,7 @@ function Row(table, columns, row_data){
     self.data = row_data
     self.attrs = ''
     self.attrs_cell = ''
+    self.table = table
 
 
     self.get_row_dict = function (){
