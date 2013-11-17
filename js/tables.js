@@ -111,7 +111,7 @@ function Table(name, columns, data){
             console.log(dct)
             self.add_callback(self.name, dct)
             $('#modal-add', self.div).modal('hide')
-            $('.modal-backdrop').remove()
+            setTimeout(function (){$('.modal-backdrop').remove()}, 500)
         })
         $('#modal-add').modal()
 
@@ -149,7 +149,7 @@ function Table(name, columns, data){
                 console.log(dct)
                 self.save_callback(self.name, dct)
                 $('#modal-edit', self.div).modal('hide')
-                $('.modal-backdrop').remove()
+                setTimeout(function (){$('.modal-backdrop').remove()}, 500)
             })
             $('#modal-edit').modal()
         }
@@ -163,7 +163,7 @@ function Table(name, columns, data){
             $('button.btn-del', self.div).click(function (e){
                 console.log('Click del button')
                 $('#modal-delete', self.div).modal('hide')
-                $('.modal-backdrop').remove()
+                setTimeout(function (){$('.modal-backdrop').remove()}, 500)
                 self.del_callback(self.name, self.rows[row_idx].get_row_dict())}),
             $('#modal-delete').modal()
         }
