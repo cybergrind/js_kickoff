@@ -96,19 +96,15 @@ function Table(name, columns, data){
     }
 
     self.on_add_row = function (evt){
-        console.log('click row add')
         $('#modal-add').remove()
         var modal_add = self.add_tmpl(new Row(self, self.columns, []))
         self.div.append(modal_add)
         $('button.btn-add', self.div).click(function (e){
-            console.log('Button click')
             var arr = $('#add-form').serializeArray()
             var dct = {}
             _.each(arr, function (arr_row){
                 dct[arr_row.name] = arr_row.value
             })
-            console.log('ADD ARRAY')
-            console.log(dct)
             self.add_callback(self.name, dct)
             $('#modal-add', self.div).modal('hide')
             setTimeout(function (){$('.modal-backdrop').remove()}, 500)
@@ -121,7 +117,6 @@ function Table(name, columns, data){
         if (!self.add_callback && !self.del_callback && !self.save_callback)
         { return false }
         row_idx = evt.target.parentNode.rowIndex - 1
-        console.log('On table click. RowIndex '+row_idx)
         if (row_idx < 0 || row_idx == undefined || isNaN(row_idx)){
             console.log('Do not draw edit menu')
             return false }
@@ -132,21 +127,17 @@ function Table(name, columns, data){
         self.e_bar_clean()
         self.e_bar = $(self.e_tmpl(self))
         var edit = function (e){
-            console.log('click edit')
             $('#modal-edit').remove()
             var edit_row = self.rows[row_idx].on_edit(cell_idx)
             self.e_bar_clean()
             var modal_edit = self.edit_tmpl(edit_row)
             self.div.append(modal_edit)
             $('button.btn-save', self.div).click(function (e){
-                console.log('Button click')
                 var arr = $('#edit-form').serializeArray()
                 var dct = {}
                 _.each(arr, function (arr_row){
                     dct[arr_row.name] = arr_row.value
                 })
-                console.log('ADD ARRAY')
-                console.log(dct)
                 self.save_callback(self.name, dct)
                 $('#modal-edit', self.div).modal('hide')
                 setTimeout(function (){$('.modal-backdrop').remove()}, 500)
@@ -154,21 +145,18 @@ function Table(name, columns, data){
             $('#modal-edit').modal()
         }
         var remove = function (e){
-            console.log('click remove')
             $('#modal-delete').remove()
             var del_row = self.rows[row_idx].on_delete(cell_idx)
             self.e_bar_clean()
             var modal_del = self.del_tmpl(del_row)
             self.div.append(modal_del)
             $('button.btn-del', self.div).click(function (e){
-                console.log('Click del button')
                 $('#modal-delete', self.div).modal('hide')
                 setTimeout(function (){$('.modal-backdrop').remove()}, 500)
                 self.del_callback(self.name, self.rows[row_idx].get_row_dict())}),
             $('#modal-delete').modal()
         }
         var ok = function (e){
-            console.log('click ok')
             self.e_bar_clean()
         }
 
@@ -215,6 +203,13 @@ function Table(name, columns, data){
 
     self.sort = function (row){
         return row.get_sort()
+    }
+
+    self.destroy = function (){
+        $('table', self.div).unbind('click')
+        $('.row-add', self.div).unbind('click')
+        self.columns = null
+        self.rows = null
     }
     self.init()
     return self
