@@ -82,9 +82,11 @@ function Table(name, columns, data){
 
     self.edit_clicks = function(){
         if (self.add_callback || self.del_callback || self.save_callback){
-            $('table', self.div).click(self.on_click)
+            var selector = '#'+self.div.attr('id')+'>div>table'
+            $('body').on('click', selector, self.on_click)
             if (self.add_callback){
-                $('.row-add', self.div).click(self.on_add_row)
+                var selector2 = '#'+self.div.attr('id')+' span.row-add'
+                $('body').on('click', selector2, self.on_add_row)
             }
         }
     }
@@ -206,10 +208,10 @@ function Table(name, columns, data){
     }
 
     self.destroy = function (){
-        $('table', self.div).unbind('click')
-        $('.row-add', self.div).unbind('click')
-        self.columns = null
-        self.rows = null
+        var selector = '#'+self.div.attr('id')+'>div>table'
+        $('body').off('click', selector)
+        var selector2 = '#'+self.div.attr('id')+' span.row-add'
+        $('body').off('click', selector2)
     }
     self.init()
     return self
