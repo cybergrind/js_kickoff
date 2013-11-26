@@ -98,7 +98,7 @@ function Table(name, columns, data){
     self.on_add_row = function (evt){
         $('#modal-add').remove()
         var modal_add = self.add_tmpl(new Row(self, self.columns, []))
-        self.div.append(modal_add)
+        $('body').append(modal_add)
         $('button.btn-add', self.div).click(function (e){
             var arr = $('#add-form').serializeArray()
             var dct = {}
@@ -106,7 +106,7 @@ function Table(name, columns, data){
                 dct[arr_row.name] = arr_row.value
             })
             self.add_callback(self.name, dct)
-            $('#modal-add', self.div).modal('hide')
+            $('#modal-add').modal('hide')
             setTimeout(function (){$('.modal-backdrop').remove()}, 500)
         })
         $('#modal-add').modal()
@@ -131,7 +131,7 @@ function Table(name, columns, data){
             var edit_row = self.rows[row_idx].on_edit(cell_idx)
             self.e_bar_clean()
             var modal_edit = self.edit_tmpl(edit_row)
-            self.div.append(modal_edit)
+            $('body').append(modal_edit)
             $('button.btn-save', self.div).click(function (e){
                 var arr = $('#edit-form').serializeArray()
                 var dct = {}
@@ -139,7 +139,7 @@ function Table(name, columns, data){
                     dct[arr_row.name] = arr_row.value
                 })
                 self.save_callback(self.name, dct)
-                $('#modal-edit', self.div).modal('hide')
+                $('#modal-edit').modal('hide')
                 setTimeout(function (){$('.modal-backdrop').remove()}, 500)
             })
             $('#modal-edit').modal()
@@ -149,9 +149,9 @@ function Table(name, columns, data){
             var del_row = self.rows[row_idx].on_delete(cell_idx)
             self.e_bar_clean()
             var modal_del = self.del_tmpl(del_row)
-            self.div.append(modal_del)
+            $('body').append(modal_del)
             $('button.btn-del', self.div).click(function (e){
-                $('#modal-delete', self.div).modal('hide')
+                $('#modal-delete').modal('hide')
                 setTimeout(function (){$('.modal-backdrop').remove()}, 500)
                 self.del_callback(self.name, self.rows[row_idx].get_row_dict())}),
             $('#modal-delete').modal()
