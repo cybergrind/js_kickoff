@@ -101,7 +101,7 @@ function Table(name, columns, data){
         $('#modal-add').remove()
         var modal_add = self.add_tmpl(new Row(self, self.columns, []))
         $('body').append(modal_add)
-        $('button.btn-add', self.div).click(function (e){
+        $('button.btn-add').click(function (e){
             var arr = $('#add-form').serializeArray()
             var dct = {}
             _.each(arr, function (arr_row){
@@ -134,7 +134,7 @@ function Table(name, columns, data){
             self.e_bar_clean()
             var modal_edit = self.edit_tmpl(edit_row)
             $('body').append(modal_edit)
-            $('button.btn-save', self.div).click(function (e){
+            $('button.btn-save').click(function (e){
                 var arr = $('#edit-form').serializeArray()
                 var dct = {}
                 _.each(arr, function (arr_row){
@@ -152,7 +152,7 @@ function Table(name, columns, data){
             self.e_bar_clean()
             var modal_del = self.del_tmpl(del_row)
             $('body').append(modal_del)
-            $('button.btn-del', self.div).click(function (e){
+            $('button.btn-del').click(function (e){
                 $('#modal-delete').modal('hide')
                 setTimeout(function (){$('.modal-backdrop').remove()}, 500)
                 self.del_callback(self.name, self.rows[row_idx].get_row_dict())}),
